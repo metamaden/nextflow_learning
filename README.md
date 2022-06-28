@@ -102,9 +102,152 @@ Now running `nextflow` brings up the docstrings.
 # Nextflow basics
 
 This section describes basic concepts to start using Nextflow and designing new
-workflows.
+workflows. 
 
+## Vocabulary
 
+First there are several key terms to know:
 
-# Workflow examples
+* **Process** -- An individual task which can be written in any scripting langauge (e.g. R, Python, Bash, Perl, etc.). Processes are discrete independent units in a workflow and don't share a writable state, but they can communicate in Nextflow via channels. An example process looks like:
 
+```
+process blastSearch {
+  input:
+    path query
+    path db
+  output:
+    path "top_hits.txt"
+
+    """
+    blastp -db $db -query $query -outfmt 6 > blast_result
+    cat blast_result | head -n 10 | cut -f 2 > top_hits.txt
+    """
+}
+```
+
+* **Channel** -- This is a queue by which independent processes communicate in Nextflow. A
+process can have multiple channels, and these can be organized as input and output. Channel declarations are vital because they essentially make up the workflow by specifying how processes communicate and how tasks are executed. In the above process, the channels are specified as:
+
+```
+input:
+    path query
+    path db
+  output:
+    path "top_hits.txt"
+```
+
+* **Communication link** -- One of the ways channels facilitate communication between processes is when the output of one process is specified as the input to another process. This relationship, called a communication link, also implicitly establishes a sequence in which processes are executed. For example, the following process has established a communication link with the above process `blastSearch` because it takes the contents of `top_hits.txt` as its input.
+
+```
+process extractTopHits {
+  input:
+    path top_hits
+
+  output:
+    path "sequences.txt"
+
+    """
+    blastdbcmd -db $db -entry_batch $top_hits > sequences.txt
+    """
+}
+```
+
+## Example workflow
+
+```
+// Declare syntax version
+nextflow.enable.dsl=2
+// Script parameters
+params.query = "/some/data/sample.fa"
+params.db = "/some/path/pdb"
+
+process blastSearch {
+  input:
+    path query
+    path db
+  output:
+    path "top_hits.txt"
+
+    """
+    blastp -db $db -query $query -outfmt 6 > blast_result
+    cat blast_result | head -n 10 | cut -f 2 > top_hits.txt
+    """
+}
+
+process extractTopHits {
+  input:
+    path top_hits
+
+  output:
+    path "sequences.txt"
+
+    """
+    blastdbcmd -db $db -entry_batch $top_hits > sequences.txt
+    """
+}
+
+workflow {
+   def query_ch = Channel.fromPath(params.query)
+   blastSearch(query_ch, params.db) | extractTopHits | view
+}
+```
+
+## Running a workflow
+
+Nextflow workflows are contained in files with `.nf` extension. Executing a workflow
+is as simple as:
+
+```
+nextflow run <workflow_name>.nf
+```
+
+The `-resume` operator can be used to restart a workflow when debugging.
+
+## Starting workflow
+
+Let's make a small example workflow. This will contain a single rule that stores a
+string in a series of files.
+
+Make a new workflow called `simpleworkflow.nf` using
+
+```
+touch simpleworkflow.nf
+vi simpleworkflow.nf
+```
+
+Press `i` to change to insert mode, and write the following example workflow:
+
+```
+#!/usr/bin/env nextflow
+nextflow.enable.dsl=2
+
+params.str = 'hello world'
+
+process splitLetters {
+	input 
+		params.str
+	output:
+		path 'newfile_*'
+
+	"""
+  	printf '${params.str}' | split -b 4 - newfile_
+  	"""
+}
+
+workflow {
+	splitLetters
+}
+```
+
+We can now run `simpleworkflow.nf`:
+
+```
+nextflow simpleworkflow.nf
+```
+
+This returned:
+
+```
+N E X T F L O W  ~  version 22.04.4
+Launching `simpleworkflow.nf` [prickly_borg] DSL2 - revision: 1c88026b60
+```

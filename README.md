@@ -213,6 +213,35 @@ process {
 }
 ```
 
+## DSL scripting
+
+DSL scripting basics are covered [here](https://www.nextflow.io/docs/latest/script.html).
+
+An important concept is how multi-line text and code is handled. First, multi-line text
+is managed using flanking `"""` or `'''` symbols, e.g:
+
+```
+text = """
+	my first line of text
+	my second line of text
+	"""
+```
+
+Multi-line code is handled similariy, where the `\` symbol is used to connect multiple
+lines of input as a single command, similar to bash.
+
+```
+myLongCmdline = """
+    blastp \
+    -in $input_query \
+    -out $output_file \
+    -db $blast_database \
+    -html
+    """
+
+result = myLongCmdline.execute().text
+```
+
 ## Running a workflow
 
 Nextflow workflows are contained in files with `.nf` extension. Executing a workflow

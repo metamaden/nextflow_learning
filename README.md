@@ -152,6 +152,15 @@ process extractTopHits {
 }
 ```
 
+* **Reactivity** -- Downstream processes wait to run until outputs from upstream processes with a communication link are detected. In other words, processes run reactively in response to upstream outputs which are used as downstream inputs.
+
+* **Executor** -- This is an abstraction describing how a workflow script is actually run
+on a give system, where the local system is used by default. This is where batch management
+system parameters are furnished to schedule batch runs on HPC clusters (e.g. SGE, Slurm, etc. are supported). Cloud platforms are also supported (e.g. AWS, etc.).
+
+* **DSL** -- Nextflow's scripting language, which is meant to augment code from other more
+common scripting langauges to minimize the learning curve.
+
 ## Example workflow
 
 ```
@@ -189,6 +198,17 @@ process extractTopHits {
 workflow {
    def query_ch = Channel.fromPath(params.query)
    blastSearch(query_ch, params.db) | extractTopHits | view
+}
+```
+
+## Configuration file
+
+This file lives in the same directory as the pipeline execution directory. It species the executor, environment variables, pipeline parameters, etc. An example `nextflow.config` file is:
+
+```
+process {
+  executor='sge'
+  queue = 'cn-el6'
 }
 ```
 

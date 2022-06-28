@@ -159,7 +159,8 @@ on a give system, where the local system is used by default. This is where batch
 system parameters are furnished to schedule batch runs on HPC clusters (e.g. SGE, Slurm, etc. are supported). Cloud platforms are also supported (e.g. AWS, etc.).
 
 * **DSL** -- Nextflow's scripting language, which is meant to augment code from other more
-common scripting langauges to minimize the learning curve.
+common scripting langauges to minimize the learning curve. Basic scripting examples are shown [here](https://www.nextflow.io/docs/latest/script.html). DSL derives from Groovy, which derives from Java but is meant as a higher-level language that simplifies Java 
+syntax (analogous to Python versus C/C++/etc.).
 
 ## Example workflow
 

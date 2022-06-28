@@ -238,7 +238,11 @@ myLongCmdline = """
     -db $blast_database \
     -html
     """
+```
 
+The above could then be executed with
+
+```
 result = myLongCmdline.execute().text
 ```
 

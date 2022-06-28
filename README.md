@@ -106,7 +106,10 @@ workflows.
 
 ## Vocabulary
 
-First there are several key terms to know:
+The following figure shows some of the terminology that is important for understanding
+the Nextflow syntax:
+
+![Nextflow terminology](/doc/nextflow_learning.jpg)
 
 * **Process** -- An individual task which can be written in any scripting langauge (e.g. R, Python, Bash, Perl, etc.). Processes are discrete independent units in a workflow and don't share a writable state, but they can communicate in Nextflow via channels. An example process looks like:
 
